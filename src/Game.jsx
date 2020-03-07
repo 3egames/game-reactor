@@ -11,6 +11,7 @@ export default class Game extends Component {
     const DEFAULT_CONFIG = {
       name: 'Unnamed Game',
       viewport: {
+        showCollisions: false,
         showPerfStats: false,
         fps: 30,
         width: 360,
@@ -36,6 +37,7 @@ export default class Game extends Component {
     }
   }
 
+  get ShowCollisions() { return this.config.viewport.showCollisions; }
   get name() {
     return this.config.name;
   }
@@ -45,8 +47,8 @@ export default class Game extends Component {
       throw new Error('Game.onClick method is not a valid function');
     } else if (self.onClick) {
       self.onClick({
-        x: Math.ceil(e.clientX - self.viewport.pagePosition.left),
-        y: Math.ceil(e.clientY - self.viewport.pagePosition.top),
+        x: Math.ceil(e.clientX - self.viewport.PagePosition.left),
+        y: Math.ceil(e.clientY - self.viewport.PagePosition.top),
       });
     }
   }
@@ -67,8 +69,8 @@ export default class Game extends Component {
       lapse = current - prev;
       secondCounter += lapse;
       if (secondCounter > nextFrame) {
-        self.gameUpdate(lapse);
-        self.gameDraw(lapse, { frameNumber });
+        if (self.gameUpdate) { self.gameUpdate(lapse); }
+        if (self.gameDraw) { self.gameDraw(lapse, { frameNumber }); }
         frameNumber += 1;
         nextFrame = (1000 / self.config.viewport.fps) * frameNumber;
       }
@@ -98,4 +100,3 @@ export default class Game extends Component {
     );
   }
 }
-

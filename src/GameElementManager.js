@@ -11,10 +11,10 @@ export default class GameElementManager {
     if (e instanceof GameElement === false) {
       throw new Error('Value to add is not an instance of GameElement');
     }
-    if (this.elements[e.name]) {
-      throw new Error(`Element named ${e.name} already exists. Please make sure each element name is unique`);
+    if (this.elements[e.Name]) {
+      throw new Error(`Element named ${e.Name} already exists. Please make sure each element name is unique`);
     }
-    this.elements[e.name] = e;
+    this.elements[e.Name] = e;
     this.elementIndex.push(e);
   }
 

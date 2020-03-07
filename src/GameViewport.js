@@ -18,13 +18,13 @@ export default class GameViewport {
 
   get CanvasRefCtx() {
     if (!self.canvasRefCtx && self.canvasRef.current) {
-      self.canvasRefCtx = self.canvasRef.current.getContext('2d')
+      self.canvasRefCtx = self.canvasRef.current.getContext('2d');
     }
     if (!self.canvasRefCtx) throw new Error('Canvas context being accessed but is not available.');
     return self.canvasRefCtx;
   }
 
-  get pagePosition() {
+  get PagePosition() {
     const rect = self.canvasRef.current.getBoundingClientRect();
     return {
       left: rect.left,
@@ -38,18 +38,26 @@ export default class GameViewport {
     }
   }
 
-  drawElement(element, config) {
+  drawElement(element, override) {
     if (self.CanvasRefCtx) {
-      const DEFAULT_CONFIG = {
-        pos: { x: 0, y: 0 },
+      const o = override || {
+        pos: {
+          x: element.XPos,
+          y: element.YPos,
+        },
       };
-      const c = { ...DEFAULT_CONFIG, ...config };
-      self.CanvasRefCtx.drawImage(element.sprite, c.pos.x, c.pos.y);
-      if (element.state.size) {
-        self.CanvasRefCtx.beginPath();
-        self.CanvasRefCtx.strokeStyle = '#0f0';
-        self.CanvasRefCtx.rect(c.pos.x, c.pos.y, element.state.size.width, element.state.size.height);
-        self.CanvasRefCtx.stroke();
+      self.CanvasRefCtx.drawImage(element.Sprite, o.pos.x, o.pos.y);
+      if (self.game.ShowCollisions) {
+        if (element.HasCollisions && element.Collisions.Active) {
+          self.CanvasRefCtx.beginPath();
+          let bx;
+          for (let i = 0; i < element.Collisions.Boxes.length; i += 1) {
+            bx = element.Collisions.Boxes[i];
+            self.CanvasRefCtx.strokeStyle = bx.Color;
+            self.CanvasRefCtx.rect(bx.XPos, bx.YPos, bx.Width, bx.Height);
+          }
+          self.CanvasRefCtx.stroke();
+        }
       }
     }
   }
