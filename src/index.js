@@ -1,5 +1,3 @@
-
-
 exports.Game = require('./Game.jsx').default;
 exports.GameElement = require('./GameElement.js').default;
 exports.GameElementManager = require('./GameElementManager.js').default;

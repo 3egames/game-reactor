@@ -27,14 +27,18 @@ export default class GameElementManager {
 
   update(lapse) {
     for (let i = 0; i < this.elementIndex.length; i += 1) {
-      this.elementIndex[i].update(lapse);
+      if (this.elementIndex[i].onUpdate && typeof this.elementIndex[i].onUpdate === 'function') {
+        this.elementIndex[i].update(lapse);
+      }
     }
   }
 
   redraw(lapse) {
     this.game.viewport.clear();
     for (let i = 0; i < this.elementIndex.length; i += 1) {
-      this.elementIndex[i].draw(lapse);
+      if (this.elementIndex[i].onDraw && typeof this.elementIndex[i].onDraw === 'function') {
+        this.elementIndex[i].draw(lapse);
+      }
     }
   }
 }

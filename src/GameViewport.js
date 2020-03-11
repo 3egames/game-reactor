@@ -62,14 +62,30 @@ export default class GameViewport {
     }
   }
 
-  drawText(text, config, pen = 'default') {
+  drawText(text, config, font = 'default') {
     if (self.CanvasRefCtx) {
+      //clean previouss font changes
+      self.CanvasRefCtx.font = 'Arial';
+      self.CanvasRefCtx.fillStyle = 'black';
+      self.CanvasRefCtx.strokeStyle = null;
       const DEFAULT_CONFIG = {
         pos: { x: 0, y: 0 },
       };
       const c = { ...DEFAULT_CONFIG, ...config };
-      self.CanvasRefCtx.font = self.pens[pen];
+      const f = self.game.fonts.get(font);
+
+      const size = f.size || '10px';
+      const family = f.family || 'Arial';
+      const color = f.color || '#000';
+      self.CanvasRefCtx.font = `${size} ${family}`;
+      self.CanvasRefCtx.fillStyle = color;
       self.CanvasRefCtx.fillText(text, c.x, c.y);
+      self.CanvasRefCtx.textBaseline = 'top';
+      if (f.stroke_width) {
+        self.CanvasRefCtx.strokeStyle = f.stroke_color || '#fff';
+        self.CanvasRefCtx.lineWidth = f.stroke_width;
+        self.CanvasRefCtx.strokeText(text, c.x, c.y);
+      }
     }
   }
 

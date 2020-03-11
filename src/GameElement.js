@@ -49,7 +49,7 @@ export default class GameElement {
     if (!this.config.sprite) {
       throw new Error(`No sprite was referenced for ${this.config.name}`);
     }
-    return this.game.sprites.get(this.config.sprite);
+    return this.game.Sprites.getSource(this.config.sprite);
   }
 
   update(lapse) {
