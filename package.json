@@ -1,15 +1,13 @@
 {
   "name": "game-reactor",
-  "version": "0.2.12",
-  "description": "Game development SDK for the web using ReactJS",
-  "main": "lib/index.js",
+  "version": "0.3.1",
+  "description": "Game development SDK for the web using ReactJS with Typescript",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/adonisv79/game-reactor.git"
+    "build": "rollup -c --bundleConfigAsCjs",
+    "publish": "npm publish",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "keywords": [
     "game",
@@ -23,13 +21,35 @@
   },
   "homepage": "https://github.com/adonisv79/game-reactor#readme",
   "devDependencies": {
-    "@babel/core": "7.8.7",
-    "@babel/preset-react": "^7.8.3",
-    "babel-loader": "^8.0.6",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "react": "^16.12.0",
-    "react-dom": "^16.12.0",
-    "webpack": "^4.42.0",
-    "webpack-cli": "^3.3.11"
+    "@rollup/plugin-commonjs": "^25.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.2",
+    "@rollup/plugin-typescript": "^11.1.1",
+    "@storybook/addon-essentials": "^7.0.17",
+    "@storybook/addon-interactions": "^7.0.17",
+    "@storybook/addon-links": "^7.0.17",
+    "@storybook/blocks": "^7.0.17",
+    "@storybook/react": "^7.0.17",
+    "@storybook/react-vite": "^7.0.17",
+    "@storybook/testing-library": "^0.0.14-next.2",
+    "@types/node": "^20.2.3",
+    "@types/react": "^18.2.7",
+    "prop-types": "^15.8.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "rollup": "^3.23.0",
+    "rollup-plugin-dts": "^5.3.0",
+    "storybook": "^7.0.17",
+    "tslib": "^2.5.2",
+    "typescript": "^5.0.4"
+  },
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "files": [
+    "dist"
+  ],
+  "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adonisv79/game-reactor.git"
   }
 }

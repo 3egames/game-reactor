@@ -1,43 +1,40 @@
+import Game from './Game';
 import GameElement from './GameElement';
 
 export default class GameElementManager {
-  constructor(game) {
-    this.game = game;
+  private elements: { [key: string]: GameElement }
+  private elementIndex: GameElement[];
+
+  constructor() {
     this.elements = {};
     this.elementIndex = [];
   }
 
-  add(e) {
-    if (e instanceof GameElement === false) {
-      throw new Error('Value to add is not an instance of GameElement');
-    }
-    if (this.elements[e.Name]) {
-      throw new Error(`Element named ${e.Name} already exists. Please make sure each element name is unique`);
-    }
-    this.elements[e.Name] = e;
+  add(e: GameElement) {
+    this.elements[e.Config.name] = e;
     this.elementIndex.push(e);
   }
 
-  get(name) {
+  get(name: string) {
     if (!this.elements[name]) {
       throw new Error(`Element ${name} not found`);
     }
     return this.elements[name];
   }
 
-  update(lapse) {
+  update(game: Game, lapse: number) {
     for (let i = 0; i < this.elementIndex.length; i += 1) {
       if (this.elementIndex[i].onUpdate && typeof this.elementIndex[i].onUpdate === 'function') {
-        this.elementIndex[i].update(lapse);
+        this.elementIndex[i].onUpdate(game, lapse);
       }
     }
   }
 
-  redraw(lapse) {
-    this.game.viewport.clear();
+  redraw(game: Game, lapse: number) {
+    //this.game.viewport.clear();
     for (let i = 0; i < this.elementIndex.length; i += 1) {
       if (this.elementIndex[i].onDraw && typeof this.elementIndex[i].onDraw === 'function') {
-        this.elementIndex[i].draw(lapse);
+        this.elementIndex[i].onDraw(game, lapse);
       }
     }
   }
