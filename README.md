@@ -1,8 +1,8 @@
-█████ █████
-▄▄▄██ ██▄▄▄
-▀▀▀██ ██▀▀▀
-█████ █████
-DEVELOPMENT
+█████ █████  
+▄▄▄██ ██▄▄▄  
+▀▀▀██ ██▀▀▀  
+█████ █████  
+DEVELOPMENT  
 
 # Game Reactor
 The Game Reactor is a Game Development SDK that is used to create small sized games that run on a web browser. It utilizes ReactJS and organizes game development by abstracting developers from the inner complexities of managing assets and web component UI behaviours from them.
