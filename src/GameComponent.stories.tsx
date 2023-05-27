@@ -25,26 +25,26 @@ class Avatar extends GameElement {
     this.yDirDown = true;
   }
 
-  onUpdate(game: Game, timeDelta: number) {
+  onUpdate(timeDelta: number) {
     if (this.yDirDown) {
       this.Config.pos!.y! += (this.State.speed * timeDelta);
-      if (this.Config.pos!.y! + 50 > game.viewport.Config.height!) this.yDirDown = false;
+      if (this.Config.pos!.y! + 50 > this.Game.Viewport.Config.height!) this.yDirDown = false;
     } else {
       this.Config.pos!.y -= (this.State.speed * timeDelta);
       if (this.Config.pos!.y < 0) this.yDirDown = true;
     }
     if (this.xDirRight) {
       this.Config.pos!.x += (this.State.speed * timeDelta);
-      if (this.Config.pos!.x + 50 > game.viewport.Config.width!) this.xDirRight = false;
+      if (this.Config.pos!.x + 50 > this.Game.Viewport.Config.width!) this.xDirRight = false;
     } else {
       this.Config.pos!.x -= (this.State.speed * timeDelta);
       if (this.Config.pos!.x < 0) this.xDirRight = true;
     }
   }
 
-  onDraw(game: Game, timeDelta: number) {
-    game.viewport.clear()
-    game.viewport.drawElement(this);
+  onDraw(timeDelta: number) {
+    this.Game.Viewport.clear()
+    this.Game.Viewport.drawElement(this);
   }
 
   playSound() {
@@ -69,12 +69,12 @@ class DemoGame extends Game {
       someFlag: true,
       clickCount: 0
     })
-    this.sounds.addSource('blast', 'https://soundbible.com/mp3/Laser_Cannon-Mike_Koenig-797224747.mp3');
-    this.sprites.addSource('avatar', 'https://pixeljoint.com/files/icons/ladyhazy.gif');
+    this.Sounds.addSource('blast', 'https://soundbible.com/mp3/Laser_Cannon-Mike_Koenig-797224747.mp3');
+    this.Sprites.addSource('avatar', 'https://pixeljoint.com/files/icons/ladyhazy.gif');
   }
 
   onReady() {
-    this.elements.add(new Avatar(this));
+    this.Elements.add(new Avatar(this));
   }
 
   onDisengaged() {
@@ -82,20 +82,20 @@ class DemoGame extends Game {
   }
 
   onDraw(timeDelta: number, sysPerf: any) {
-    this.elements.redraw(this, timeDelta)
-    if (this.viewport.Config.showPerfStats) {
-      const font = this.fonts.get('default')
-      this.viewport.drawText("Game Reactor by: Adonis Lee Villamor", { x: 10, y: 240 }, font);
-      this.viewport.drawText(`Frame: ${sysPerf}/${this.viewport.Config.fps}`, { x: 260, y: 240 }, font);
+    this.Elements.redraw(this, timeDelta)
+    if (this.Viewport.Config.showPerfStats) {
+      const font = this.Fonts.get('default')
+      this.Viewport.drawText("Game Reactor by: Adonis Lee Villamor", { x: 10, y: 240 }, font);
+      this.Viewport.drawText(`Frame: ${sysPerf}/${this.Viewport.Config.fps}`, { x: 260, y: 240 }, font);
     }
   }
 
   onUpdate(timeDelta: number) {
-    this.elements.update(this, timeDelta);
+    this.Elements.update(this, timeDelta);
   }
 
   onMouseDown(e: GameMouseEvent) {
-    this.sounds.play('blast');
+    this.Sounds.play('blast');
   }
 }
 

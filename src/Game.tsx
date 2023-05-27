@@ -39,27 +39,27 @@ const DEFAULT_CONFIG = {
 };
 
 export abstract class Game {
-  elements: GameElementManager;
-  config: GameConfig;
-  viewport: GameViewport;
-  state: { [key: string]: any };
-  fonts: GameFontManager;
-  sounds: SoundMixer;
-  sprites: SpriteManager;
+  private _elements: GameElementManager;
+  private _config: GameConfig;
+  private _fonts: GameFontManager;
+  private _logger: GameLog;
+  private _sounds: SoundMixer;
+  private _sprites: SpriteManager;
+  private _state: { [key: string]: any };
+  private _viewport: GameViewport;
   instanceID: number;
-  logger: GameLog;
 
   constructor(config: GameConfig = DEFAULT_CONFIG, state: { [key: string]: any } = {}) {
-    this.config = { ...DEFAULT_CONFIG, ...config };
+    this._config = { ...DEFAULT_CONFIG, ...config };
     this.instanceID = Math.round(Math.random() * 1000)
-    this.logger = new GameLog(this.instanceID.toString(), this.config.logLevel ?? GameLogLevels.info);
-    this.logger.info('Initializing game instance...');
-    this.state = state;
-    this.viewport = new GameViewport(config.viewport);
-    this.elements = new GameElementManager();
-    this.fonts = new GameFontManager();
-    this.sounds = new SoundMixer(this.logger);
-    this.sprites = new SpriteManager();
+    this._logger = new GameLog(this.instanceID.toString(), this._config.logLevel ?? GameLogLevels.info);
+    this._logger.info('Initializing game instance...');
+    this._state = state;
+    this._viewport = new GameViewport(this._logger, config.viewport);
+    this._elements = new GameElementManager(this._logger);
+    this._fonts = new GameFontManager(this._logger);
+    this._sounds = new SoundMixer(this._logger);
+    this._sprites = new SpriteManager(this._logger);
     self = this;
   }
 
@@ -67,7 +67,7 @@ export abstract class Game {
   abstract onDisengaged(): void;
 
   onComponentMounted() {
-    self.logger.info('Game component mounted!')
+    self._logger.info('Game component mounted!')
     if (gameLoopInterval !== null) {
       clearInterval(gameLoopInterval);
     }
@@ -77,23 +77,31 @@ export abstract class Game {
   }
 
   onComponentUnmount() {
-    this.logger.info('Game component unmounted!')
+    this._logger.info('Game component unmounted!')
     if (gameLoopInterval) { // kill old interval
       clearInterval(gameLoopInterval);
     }
-    this.sounds.stopAll();
+    this._sounds.stopAll();
     this.onDisengaged();
   }
 
-  get ShowCollisions() { return this.viewport.Config.showCollisions; }
+  get ShowCollisions() { return this._viewport.Config.showCollisions; }
 
-  get Name() {
-    return this.config.name;
-  }
+  get Config() { return this._config; }
 
-  get State() {
-    return self.state;
-  }
+  get Elements() { return self._elements; }
+
+  get Fonts() { return self._fonts; }
+
+  get Logger() { return self._logger; }
+
+  get Sounds() { return this._sounds }
+
+  get Sprites() { return this._sprites }
+
+  get State() { return self._state; }
+
+  get Viewport() { return self._viewport; }
 
   abstract onDraw(timeDelta: number, sysPerf: SystemPerformance): void;
   abstract onUpdate(timeDelta: number): void;
@@ -101,7 +109,7 @@ export abstract class Game {
   /** This starts the game loop */
   private startGameLoop() {
     let frameNumber = 1;
-    let nextFrame = (1000 / this.viewport.Config.fps!) * frameNumber;
+    let nextFrame = (1000 / this._viewport.Config.fps!) * frameNumber;
     let timeCursor = 0;
     let lastFrameElapse = 0;
     let previousTimestamp = new Date().getTime();
@@ -117,17 +125,17 @@ export abstract class Game {
         self.onUpdate(timeDelta);
         self.onDraw(timeDelta, {
           frameCurrent: frameNumber,
-          frameMax: this.viewport.Config.fps!,
+          frameMax: this._viewport.Config.fps!,
         });
         lastFrameElapse = timeCursor;
         frameNumber += 1;
-        nextFrame = (1000 * frameNumber) / this.viewport.Config.fps!;
+        nextFrame = (1000 * frameNumber) / this._viewport.Config.fps!;
       }
       if (timeCursor > 1000) { // reset counters on 1 second mark
         timeCursor -= 1000;
         frameNumber = 1;
         lastFrameElapse -= 1000;
-        nextFrame = (1000 * frameNumber) / this.viewport.Config.fps!;
+        nextFrame = (1000 * frameNumber) / this._viewport.Config.fps!;
       }
       previousTimestamp = currentTimestamp;
     }, 10);

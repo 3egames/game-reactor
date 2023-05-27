@@ -1,4 +1,5 @@
 import React, { RefObject, createRef } from 'react';
+import { GameLog } from './GameLog';
 
 let self: SpriteManager;
 
@@ -41,10 +42,12 @@ const DEFAULT_CONFIG = {
 export class SpriteManager {
   sources: { [key: string]: SpriteSource };
   sprites: { [key: string]: SpriteConfig };
+  private _logger: GameLog;
 
-  constructor() {
+  constructor(logger: GameLog) {
     this.sources = {};
     this.sprites = {};
+    this._logger = logger;
     self = this;
   }
 
@@ -53,6 +56,7 @@ export class SpriteManager {
       path,
       ref: createRef()
     };
+    this._logger.debug(`Added Sprite image source '${id}'.`)
   }
 
   getSource(id: string) {
@@ -71,6 +75,7 @@ export class SpriteManager {
     }
 
     this.sprites[id] = { ...DEFAULT_CONFIG, ...config };
+    this._logger.debug(`Generated new Sprite ID#'${id}'.`)
   }
 
   getSprite(id: string) {

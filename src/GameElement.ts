@@ -25,25 +25,28 @@ export function generateConfig(): GameElementConfig {
  * This is an abstract class that must be inherited by any GameElement type
  */
 export abstract class GameElement {
-  private game: Game;
-  private config: GameElementConfig;
+  private _game: Game;
+  private _config: GameElementConfig;
   private state: { [key: string]: any }
 
   constructor(game: Game, config: GameElementConfig = DEFAULT_CONFIG, state: { [key: string]: any } = {}) {
-    this.game = game;
-    this.config = { ...DEFAULT_CONFIG, ...config };
-    this.config.collisions = new CollisionSets();
+    this._game = game;
+    this._config = { ...DEFAULT_CONFIG, ...config };
+    this._config.collisions = new CollisionSets();
     this.state = state;
+    game.Logger.debug(`GameElement '${this.Config.name}' initialized.`)
   }
 
   get ImageSource(): HTMLImageElement | null {
-    if (!this.config.sprite) return null;
-    return this.game.sprites.getSource(this.config.sprite);
+    if (!this._config.sprite) return null;
+    return this._game.Sprites.getSource(this._config.sprite);
   }
 
-  get Config() { return this.config; }
+  get Config() { return this._config; }
 
   get State() { return this.state }
+
+  get Game() { return this._game }
 
   // get Collisions() {
   //   if (!this.HasCollisions) {
@@ -61,7 +64,7 @@ export abstract class GameElement {
   //   return this.game.Sprites.getSource(this.config.sprite);
   // }
 
-  abstract onUpdate(game: Game, timeDelta: number): void;
+  abstract onUpdate(timeDelta: number): void;
 
-  abstract onDraw(game: Game, timeDelta: number): void;
+  abstract onDraw(timeDelta: number): void;
 }

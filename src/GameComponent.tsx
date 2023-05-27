@@ -19,7 +19,11 @@ export const GameComponent: FC<GameComponentProps> = ({ id, game, className }) =
 
   /** Retrieves the reference to the 2d context of the canvas */
   function linkCanvasRefs(game: Game) {
-    game.viewport.CanvasRef = canvasRef
+    if (!canvasRef) {
+      throw new Error('Reference to canvas is lost!')
+    }
+    game.Logger.debug(`connecting to canvas`)
+    game.Viewport.CanvasRef = canvasRef
   }
 
   function generateCanvsMouseEvent(e: React.MouseEvent): GameMouseEvent {
@@ -41,8 +45,8 @@ export const GameComponent: FC<GameComponentProps> = ({ id, game, className }) =
       withAltKey: e.altKey,
       withMetaKey: e.metaKey,
       withShiftKey: e.shiftKey,
-      x: Math.ceil(e.clientX - game.viewport.PagePosition.left),
-      y: Math.ceil(e.clientY - game.viewport.PagePosition.top),
+      x: Math.ceil(e.clientX - game.Viewport.PagePosition.left),
+      y: Math.ceil(e.clientY - game.Viewport.PagePosition.top),
     };
   }
 
@@ -64,7 +68,7 @@ export const GameComponent: FC<GameComponentProps> = ({ id, game, className }) =
   }
 
   function handleCanvasFocusLost() {
-    game.state.isPlaying = false;
+    game.State.isPlaying = false;
   }
 
   function handleCanvasMouseDown(e: React.MouseEvent) {
@@ -86,8 +90,8 @@ export const GameComponent: FC<GameComponentProps> = ({ id, game, className }) =
       className={className}
       id={id}
       ref={canvasRef}
-      height={game.viewport.Config.height}
-      width={game.viewport.Config.width}
+      height={game.Viewport.Config.height}
+      width={game.Viewport.Config.width}
       onBlur={handleCanvasFocusLost}
       onClick={handleCanvasClicked}
       onContextMenu={handleCanvasContextMenu}
@@ -101,6 +105,6 @@ export const GameComponent: FC<GameComponentProps> = ({ id, game, className }) =
     >
       Canvas not supported by browser
     </canvas>
-    {game.sprites.render()}
+    {game.Sprites.render()}
   </>
 }

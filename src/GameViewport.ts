@@ -1,6 +1,7 @@
 import React, { RefObject } from 'react';
 import { GameElement } from './GameElement';
 import { GameFontConfig } from './GameFontManager';
+import { GameLog } from './GameLog';
 
 export interface DrawPositions {
   x: number,
@@ -29,26 +30,25 @@ export class GameViewport {
   private _config: ViewPortConfig;
   private canvasRef: RefObject<HTMLCanvasElement> | null;
   private _canvas2DCtx: CanvasRenderingContext2D | null;
+  private _logger: GameLog;
 
-  constructor(config: ViewPortConfig = DEFAULT_CONFIG) {
+  constructor(logger: GameLog, config: ViewPortConfig = DEFAULT_CONFIG) {
     // this.pens = {
     //   default: '10px Arial',
     // }
     this._config = { ...DEFAULT_CONFIG, ...config };
     this.canvasRef = null;
     this._canvas2DCtx = null;
+    this._logger = logger;
   }
 
   get Config() {
     return this._config;
   }
 
-  setCanvas2DContext(canvas2DCtx: CanvasRenderingContext2D) {
-    this._canvas2DCtx = canvas2DCtx;
-  }
-
   set CanvasRef(value: RefObject<HTMLCanvasElement> | null) {
     this.canvasRef = value;
+    this._logger.debug(`Reference to canvas set to '${value}'`);
   }
 
   get Canvas2DContext() {

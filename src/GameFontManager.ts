@@ -1,3 +1,5 @@
+import { GameLog } from "./GameLog";
+
 export interface GameFontConfig {
   family?: string,
   size?: string,
@@ -21,8 +23,10 @@ const DEFAULT_CONFIG = {
 let fonts: { [key: string]: GameFontConfig };
 
 export class GameFontManager {
+  private _logger: GameLog;
 
-  constructor() {
+  constructor(logger: GameLog) {
+    this._logger = logger;
     fonts = {}; // make sure to clear always
     this.add('default');
   }
@@ -32,6 +36,7 @@ export class GameFontManager {
       throw new Error(`Font '${id}' already set`);
     }
     fonts[id] = { ...DEFAULT_CONFIG, ...config };
+    this._logger.debug(`Added font '${id}'`)
   }
 
   get(id: string) {
