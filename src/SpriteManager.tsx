@@ -2,12 +2,12 @@ import React, { RefObject, createRef } from 'react';
 
 let self: SpriteManager;
 
-interface SpriteSource {
+export interface SpriteSource {
   path: string,
   ref: RefObject<HTMLImageElement>,
 }
 
-interface SpriteConfig {
+export interface SpriteConfig {
   source: string,
   spriteCoordinates: {
     x: number,
@@ -38,7 +38,7 @@ const DEFAULT_CONFIG = {
 };
 
 
-export default class SpriteManager {
+export class SpriteManager {
   sources: { [key: string]: SpriteSource };
   sprites: { [key: string]: SpriteConfig };
 

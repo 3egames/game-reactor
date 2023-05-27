@@ -1,4 +1,4 @@
-import GameElement from "./GameElement";
+import { GameElement } from "./GameElement";
 
 export interface CollisionBoxConfig {
   xOffset: number,
@@ -16,7 +16,7 @@ const DEFAULT_CONFIG: CollisionBoxConfig = {
   color: '#0f0',
 };
 
-export default class CollisionBox {
+export class CollisionBox {
   config: CollisionBoxConfig;
   element: GameElement;
 
@@ -46,18 +46,18 @@ export default class CollisionBox {
   }
 
   get XPos() {
-    return this.element.Config.pos.x + this.config.xOffset;
+    return (this.element.Config.pos?.x ?? 0) + this.config.xOffset;
   }
 
   get X2Pos() {
-    return this.element.Config.pos.x + this.config.xOffset + this.config.width;
+    return (this.element.Config.pos?.x ?? 0) + this.config.xOffset + this.config.width;
   }
 
   get YPos() {
-    return this.element.Config.pos.y + this.config.yOffset;
+    return (this.element.Config.pos?.y ?? 0) + this.config.yOffset;
   }
 
   get Y2Pos() {
-    return this.element.Config.pos.y + this.config.yOffset + this.config.height;
+    return (this.element.Config.pos?.y ?? 0) + this.config.yOffset + this.config.height;
   }
 }

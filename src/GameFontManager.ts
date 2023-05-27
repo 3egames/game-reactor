@@ -20,7 +20,7 @@ const DEFAULT_CONFIG = {
 
 let fonts: { [key: string]: GameFontConfig };
 
-export default class GameFontManager {
+export class GameFontManager {
 
   constructor() {
     fonts = {}; // make sure to clear always

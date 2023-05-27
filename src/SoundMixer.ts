@@ -1,8 +1,8 @@
-import GameLog from "./GameLog";
-import SoundChannel from "./SoundChannel";
+import { GameLog } from "./GameLog";
+import { SoundChannel } from "./SoundChannel";
 
 /** The soundMixer controls multiple layers of Audio and their sources */
-export default class SoundMixer {
+export class SoundMixer {
   private logger: GameLog;
   private sources: { [key: string]: string };
   private channels: SoundChannel[];

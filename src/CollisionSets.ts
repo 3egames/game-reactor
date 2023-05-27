@@ -1,7 +1,7 @@
-import CollisionBox from './CollisionBox';
-import GameElement from './GameElement';
+import { CollisionBox } from './CollisionBox';
+import { GameElement } from './GameElement';
 
-export default class CollisionSets {
+export class CollisionSets {
   private boxes: CollisionBox[];
   private isActive: boolean;
 

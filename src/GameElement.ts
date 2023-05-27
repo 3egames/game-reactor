@@ -1,22 +1,18 @@
-import CollisionSets from './CollisionSets';
-import Game from './Game';
+import { CollisionSets } from './CollisionSets';
+import { Game } from './Game';
 
 export interface GameElementConfig {
   name: string,
-  sprite: string,
-  state: any,
+  sprite?: string,
   collisions?: CollisionSets,
   animations?: any,
-  pos: { x: number, y: number },
+  pos?: { x: number, y: number },
   size?: { width: number, height: number, scale: number },
 }
 
 const DEFAULT_CONFIG: GameElementConfig = {
   name: 'Unnamed Element',
   sprite: '',
-  state: {
-    enabled: false,
-  },
   pos: { x: 0, y: 0 },
   size: { width: 10, height: 10, scale: 1 },
 };
@@ -28,39 +24,26 @@ export function generateConfig(): GameElementConfig {
 /**
  * This is an abstract class that must be inherited by any GameElement type
  */
-export default abstract class GameElement {
+export abstract class GameElement {
   private game: Game;
   private config: GameElementConfig;
+  private state: { [key: string]: any }
 
-  constructor(game: Game, config: GameElementConfig) {
+  constructor(game: Game, config: GameElementConfig = DEFAULT_CONFIG, state: { [key: string]: any } = {}) {
     this.game = game;
     this.config = { ...DEFAULT_CONFIG, ...config };
     this.config.collisions = new CollisionSets();
+    this.state = state;
   }
 
   get ImageSource(): HTMLImageElement | null {
+    if (!this.config.sprite) return null;
     return this.game.sprites.getSource(this.config.sprite);
   }
 
   get Config() { return this.config; }
-  // get Name() { return this.config.name; }
 
-  // get XPos() { return this.config.pos.x; }
-  // set XPos(v) { this.config.pos.x = v; }
-
-  // get YPos() { return this.config.pos.y; }
-  // set YPos(v) { this.config.pos.y = v; }
-
-  // get Width() { return this.config.size.width; }
-  // set Width(v) { this.config.size.width = v; }
-
-  // get Height() { return this.config.size.height; }
-  // set Height(v) { this.config.size.height = v; }
-
-  // get Scale() { return this.config.size.scale; }
-  // set Scale(v) { this.config.size.scale = v; }
-
-  // get HasCollisions() { return this.config.hasCollisions; }
+  get State() { return this.state }
 
   // get Collisions() {
   //   if (!this.HasCollisions) {
@@ -78,7 +61,7 @@ export default abstract class GameElement {
   //   return this.game.Sprites.getSource(this.config.sprite);
   // }
 
-  abstract onUpdate(game: Game, lapse: number): void;
+  abstract onUpdate(game: Game, timeDelta: number): void;
 
-  abstract onDraw(game: Game, lapse: number): void;
+  abstract onDraw(game: Game, timeDelta: number): void;
 }

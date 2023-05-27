@@ -1,10 +1,10 @@
-import Game from "./Game";
+import { Game } from "./Game";
 
 export enum GameLogLevels {
   warn, info, debug
 }
 
-export default class GameLog {
+export class GameLog {
   logLevel: GameLogLevels;
   gameId: string;
 

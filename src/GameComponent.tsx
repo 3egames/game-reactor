@@ -1,13 +1,11 @@
-"use client";
-
 import React, { FC, useEffect, useRef } from 'react'
-import Game, { GameMouseButtons, GameMouseEvent } from './Game'
+import { Game, GameMouseButtons, GameMouseEvent } from './Game'
 
 export interface GameComponentProps {
   id: string, game: Game, className?: string
 }
 
-const GameComponent: FC<GameComponentProps> = ({ id, game, className }) => {
+export const GameComponent: FC<GameComponentProps> = ({ id, game, className }) => {
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -88,19 +86,21 @@ const GameComponent: FC<GameComponentProps> = ({ id, game, className }) => {
       className={className}
       id={id}
       ref={canvasRef}
-      height={game.config.viewport.height}
-      width={game.config.viewport.width}
+      height={game.viewport.Config.height}
+      width={game.viewport.Config.width}
       onBlur={handleCanvasFocusLost}
       onClick={handleCanvasClicked}
       onContextMenu={handleCanvasContextMenu}
       onDoubleClick={handleCanvasDoubleClicked}
       onMouseDown={handleCanvasMouseDown}
       onMouseUp={handleCanvasMouseUp}
+      style={{
+        width: '100%',
+        height: '100%'
+      }}
     >
       Canvas not supported by browser
     </canvas>
     {game.sprites.render()}
   </>
 }
-
-export default GameComponent

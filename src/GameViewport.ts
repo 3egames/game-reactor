@@ -1,7 +1,5 @@
-'use client';
-
 import React, { RefObject } from 'react';
-import GameElement from './GameElement';
+import { GameElement } from './GameElement';
 import { GameFontConfig } from './GameFontManager';
 
 export interface DrawPositions {
@@ -12,29 +10,37 @@ export interface DrawPositions {
 export interface ViewPortConfig {
   showCollisions?: boolean,
   showPerfStats?: boolean,
-  fps: number,
-  width: number,
-  height: number,
+  fps?: number,
+  width?: number,
+  height?: number,
   bgColor?: string | CanvasGradient | CanvasPattern
 }
 
-export default class GameViewport {
+const DEFAULT_CONFIG = {
+  showCollisions: false,
+  showPerfStats: false,
+  fps: 24,
+  width: 360,
+  height: 270,
+};
+
+export class GameViewport {
   // private pens: {};
-  private config: ViewPortConfig;
+  private _config: ViewPortConfig;
   private canvasRef: RefObject<HTMLCanvasElement> | null;
   private _canvas2DCtx: CanvasRenderingContext2D | null;
 
-  constructor(config: ViewPortConfig) {
+  constructor(config: ViewPortConfig = DEFAULT_CONFIG) {
     // this.pens = {
     //   default: '10px Arial',
     // }
-    this.config = config;
+    this._config = { ...DEFAULT_CONFIG, ...config };
     this.canvasRef = null;
     this._canvas2DCtx = null;
   }
 
   get Config() {
-    return this.config;
+    return this._config;
   }
 
   setCanvas2DContext(canvas2DCtx: CanvasRenderingContext2D) {
@@ -55,9 +61,9 @@ export default class GameViewport {
 
   clear() {
     if (this.Canvas2DContext) {
-      this.Canvas2DContext.clearRect(0, 0, this.config.width, this.config.height);
+      this.Canvas2DContext.clearRect(0, 0, this.Config.width || 0, this.Config.height || 0);
       this.Canvas2DContext.fillStyle = this.Config.bgColor || "blue";
-      this.Canvas2DContext.fillRect(0, 0, this.config.width, this.config.height);
+      this.Canvas2DContext.fillRect(0, 0, this.Config.width || 0, this.Config.height || 0);
     }
   }
 
@@ -71,9 +77,9 @@ export default class GameViewport {
 
   drawElement(element: GameElement, pos?: DrawPositions) {
     if (this.Canvas2DContext) {
-      pos = pos || {
-        x: element.Config.pos.x,
-        y: element.Config.pos.y,
+      pos = pos ?? {
+        x: element.Config.pos!.x,
+        y: element.Config.pos!.y,
       };
       let image = element.ImageSource
       if (image) {

@@ -1,4 +1,4 @@
-export default class SoundChannel {
+export class SoundChannel {
   private audio: HTMLAudioElement;
   private status: 'playing' | 'ready' | 'paused'
 

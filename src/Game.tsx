@@ -1,9 +1,9 @@
-import GameViewport, { ViewPortConfig } from './GameViewport';
-import SpriteManager from './SpriteManager';
-import GameElementManager from './GameElementManager';
-import GameFontManager from './GameFontManager';
-import SoundMixer from './SoundMixer';
-import GameLog, { GameLogLevels } from './GameLog';
+import { GameViewport, ViewPortConfig } from './GameViewport';
+import { SpriteManager } from './SpriteManager';
+import { GameElementManager } from './GameElementManager';
+import { GameFontManager } from './GameFontManager';
+import { SoundMixer } from './SoundMixer';
+import { GameLog, GameLogLevels } from './GameLog';
 
 let self: Game;
 let gameLoopInterval: ReturnType<typeof setTimeout>;
@@ -22,40 +22,39 @@ export interface GameMouseEvent {
   y: number,
 }
 
-interface GameConfig {
+export interface GameConfig {
   name: string,
-  viewport: ViewPortConfig,
+  viewport?: ViewPortConfig,
   logLevel?: GameLogLevels,
+}
+
+export interface SystemPerformance {
+  frameCurrent: number,
+  frameMax: number
 }
 
 const DEFAULT_CONFIG = {
   name: 'Unnamed Game',
-  viewport: {
-    showCollisions: false,
-    showPerfStats: false,
-    fps: 30,
-    width: 360,
-    height: 270,
-  },
+  logLevel: GameLogLevels.info
 };
 
-export default abstract class Game {
+export abstract class Game {
   elements: GameElementManager;
   config: GameConfig;
   viewport: GameViewport;
-  state: any;
+  state: { [key: string]: any };
   fonts: GameFontManager;
   sounds: SoundMixer;
   sprites: SpriteManager;
   instanceID: number;
   logger: GameLog;
 
-  constructor(config: GameConfig, state: any) {
+  constructor(config: GameConfig = DEFAULT_CONFIG, state: { [key: string]: any } = {}) {
+    this.config = { ...DEFAULT_CONFIG, ...config };
     this.instanceID = Math.round(Math.random() * 1000)
-    this.logger = new GameLog(this.instanceID.toString(), config.logLevel = GameLogLevels.info);
+    this.logger = new GameLog(this.instanceID.toString(), this.config.logLevel ?? GameLogLevels.info);
     this.logger.info('Initializing game instance...');
     this.state = state;
-    this.config = { ...DEFAULT_CONFIG, ...config };
     this.viewport = new GameViewport(config.viewport);
     this.elements = new GameElementManager();
     this.fonts = new GameFontManager();
@@ -86,7 +85,7 @@ export default abstract class Game {
     this.onDisengaged();
   }
 
-  get ShowCollisions() { return this.config.viewport.showCollisions; }
+  get ShowCollisions() { return this.viewport.Config.showCollisions; }
 
   get Name() {
     return this.config.name;
@@ -96,36 +95,41 @@ export default abstract class Game {
     return self.state;
   }
 
-  abstract onDraw(lapse: number, sysPerf: any): void;
-  abstract onUpdate(lapse: number): void;
+  abstract onDraw(timeDelta: number, sysPerf: SystemPerformance): void;
+  abstract onUpdate(timeDelta: number): void;
 
-  // My style of a basic game loop :p
-  startGameLoop() {
+  /** This starts the game loop */
+  private startGameLoop() {
     let frameNumber = 1;
-    let nextFrame = (1000 / self.config.viewport.fps) * frameNumber;
-    let secondCounter = 0;
-    let prev = new Date().getTime();
-    let current = prev;
-    let lapse = 0;
-    if (gameLoopInterval) { // kill old interval
+    let nextFrame = (1000 / this.viewport.Config.fps!) * frameNumber;
+    let timeCursor = 0;
+    let lastFrameElapse = 0;
+    let previousTimestamp = new Date().getTime();
+    let currentTimestamp = previousTimestamp;
+    if (gameLoopInterval) { // kill any old interval
       clearInterval(gameLoopInterval);
     }
     gameLoopInterval = setInterval(() => {
-      current = new Date().getTime();
-      lapse = current - prev;
-      secondCounter += lapse;
-      if (secondCounter > nextFrame) {
-        self.onUpdate(lapse);
-        self.onDraw(lapse, { frameNumber });
+      currentTimestamp = new Date().getTime();
+      timeCursor += currentTimestamp - previousTimestamp;
+      if (timeCursor > nextFrame) {
+        const timeDelta = (timeCursor - lastFrameElapse) / 1000;
+        self.onUpdate(timeDelta);
+        self.onDraw(timeDelta, {
+          frameCurrent: frameNumber,
+          frameMax: this.viewport.Config.fps!,
+        });
+        lastFrameElapse = timeCursor;
         frameNumber += 1;
-        nextFrame = (1000 / self.config.viewport.fps) * frameNumber;
+        nextFrame = (1000 * frameNumber) / this.viewport.Config.fps!;
       }
-      if (secondCounter > 1000) { // reset counters on 1 second mark
-        secondCounter -= 1000;
+      if (timeCursor > 1000) { // reset counters on 1 second mark
+        timeCursor -= 1000;
         frameNumber = 1;
-        nextFrame = (1000 / self.config.viewport.fps) * frameNumber;
+        lastFrameElapse -= 1000;
+        nextFrame = (1000 * frameNumber) / this.viewport.Config.fps!;
       }
-      prev = current;
+      previousTimestamp = currentTimestamp;
     }, 10);
 
   }

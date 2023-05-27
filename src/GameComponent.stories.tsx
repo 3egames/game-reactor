@@ -1,8 +1,8 @@
 import React from 'react'
 import { Meta, StoryObj } from "@storybook/react";
-import GameComponent from './GameComponent'
-import Game, { GameMouseEvent } from './Game';
-import GameElement from './GameElement';
+import { GameComponent } from './GameComponent'
+import { Game, GameMouseEvent } from './Game';
+import { GameElement } from './GameElement';
 import { GameLogLevels } from './GameLog';
 
 class Avatar extends GameElement {
@@ -13,35 +13,36 @@ class Avatar extends GameElement {
     super(game, {
       name: 'my-avatar',
       sprite: 'avatar',
-      state: {},
       pos: {
         x: 20,
         y: 20,
       },
+    }, {
+      speed: 240
     });
 
     this.xDirRight = true;
     this.yDirDown = true;
   }
 
-  onUpdate(game: Game, lapse: number) {
+  onUpdate(game: Game, timeDelta: number) {
     if (this.yDirDown) {
-      this.Config.pos.y += 5
-      if (this.Config.pos.y + 50 > game.viewport.Config.height) this.yDirDown = false;
+      this.Config.pos!.y! += (this.State.speed * timeDelta);
+      if (this.Config.pos!.y! + 50 > game.viewport.Config.height!) this.yDirDown = false;
     } else {
-      this.Config.pos.y -= 5
-      if (this.Config.pos.y < 0) this.yDirDown = true;
+      this.Config.pos!.y -= (this.State.speed * timeDelta);
+      if (this.Config.pos!.y < 0) this.yDirDown = true;
     }
     if (this.xDirRight) {
-      this.Config.pos.x += 5
-      if (this.Config.pos.x + 50 > game.viewport.Config.width) this.xDirRight = false;
+      this.Config.pos!.x += (this.State.speed * timeDelta);
+      if (this.Config.pos!.x + 50 > game.viewport.Config.width!) this.xDirRight = false;
     } else {
-      this.Config.pos.x -= 5
-      if (this.Config.pos.x < 0) this.xDirRight = true;
+      this.Config.pos!.x -= (this.State.speed * timeDelta);
+      if (this.Config.pos!.x < 0) this.xDirRight = true;
     }
   }
 
-  onDraw(game: Game, lapse: number) {
+  onDraw(game: Game, timeDelta: number) {
     game.viewport.clear()
     game.viewport.drawElement(this);
   }
@@ -59,7 +60,7 @@ class DemoGame extends Game {
       viewport: {
         //showCollisions: true,
         showPerfStats: true,
-        fps: 30,
+        fps: 12,
         width: 360,
         height: 270,
         bgColor: 'red',
@@ -74,24 +75,23 @@ class DemoGame extends Game {
 
   onReady() {
     this.elements.add(new Avatar(this));
-    this.startGameLoop()
   }
 
   onDisengaged() {
 
   }
 
-  onDraw(lapse: number, sysPerf: any) {
-    this.elements.redraw(this, lapse)
-    if (this.config.viewport.showPerfStats) {
+  onDraw(timeDelta: number, sysPerf: any) {
+    this.elements.redraw(this, timeDelta)
+    if (this.viewport.Config.showPerfStats) {
       const font = this.fonts.get('default')
       this.viewport.drawText("Game Reactor by: Adonis Lee Villamor", { x: 10, y: 240 }, font);
-      this.viewport.drawText(`Frame: ${sysPerf.frameNumber}/${this.config.viewport.fps}`, { x: 260, y: 240 }, font);
+      this.viewport.drawText(`Frame: ${sysPerf}/${this.viewport.Config.fps}`, { x: 260, y: 240 }, font);
     }
   }
 
-  onUpdate(lapse: number) {
-    this.elements.update(this, lapse);
+  onUpdate(timeDelta: number) {
+    this.elements.update(this, timeDelta);
   }
 
   onMouseDown(e: GameMouseEvent) {
@@ -115,7 +115,9 @@ export default meta
 type Story = StoryObj<typeof GameComponent>;
 
 export const Primary: Story = (args) => (
-  <GameComponent className='border-solid' data-testId="InputField-id" {...args} />
+  <div style={{ width: '400px', height: '300px' }}>
+    <GameComponent className='border-solid' data-testId="InputField-id" {...args} />
+  </div>
 );
 Primary.args = {
   id: "primarytest",
