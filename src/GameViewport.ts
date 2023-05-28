@@ -2,6 +2,7 @@ import React, { RefObject } from 'react';
 import { GameElement } from './GameElement';
 import { GameFontConfig } from './GameFontManager';
 import { GameLog } from './GameLog';
+import { SpriteManager } from './SpriteManager';
 
 export interface DrawPositions {
   x: number,
@@ -28,18 +29,23 @@ const DEFAULT_CONFIG = {
 export class GameViewport {
   // private pens: {};
   private _config: ViewPortConfig;
-  private canvasRef: RefObject<HTMLCanvasElement> | null;
+  public canvasRef: RefObject<HTMLCanvasElement> | null;
   private _canvas2DCtx: CanvasRenderingContext2D | null;
   private _logger: GameLog;
+  private _id: number;
+  private _sprites: SpriteManager;
 
-  constructor(logger: GameLog, config: ViewPortConfig = DEFAULT_CONFIG) {
+  constructor(sprites: SpriteManager, logger: GameLog, config: ViewPortConfig = DEFAULT_CONFIG) {
     // this.pens = {
     //   default: '10px Arial',
     // }
+    this._id = Math.round(Math.random() * 1000);
     this._config = { ...DEFAULT_CONFIG, ...config };
     this.canvasRef = null;
     this._canvas2DCtx = null;
     this._logger = logger;
+    this._logger.debug(`GameViewport id#${this._id} created`);
+    this._sprites = sprites;
   }
 
   get Config() {
@@ -48,7 +54,8 @@ export class GameViewport {
 
   set CanvasRef(value: RefObject<HTMLCanvasElement> | null) {
     this.canvasRef = value;
-    this._logger.debug(`Reference to canvas set to '${value}'`);
+    this._logger.debug(`Reference for GameViewport id#${this._id} to canvas set to '${value}'`);
+    console.log(value)
   }
 
   get Canvas2DContext() {
@@ -81,9 +88,11 @@ export class GameViewport {
         x: element.Config.pos!.x,
         y: element.Config.pos!.y,
       };
-      let image = element.ImageSource
-      if (image) {
-        this.Canvas2DContext.drawImage(image, pos.x, pos.y);
+      if (element.Config.sprite) {
+        let image = this._sprites.getSource(element.Config.sprite)
+        if (image) {
+          this.Canvas2DContext.drawImage(image, pos.x, pos.y);
+        }
       }
       // if (self.game.ShowCollisions) {
       //   if (element.Config.collisions?.Active) {

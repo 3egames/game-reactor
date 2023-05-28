@@ -6,25 +6,17 @@ export interface GameComponentProps {
 }
 
 export const GameComponent: FC<GameComponentProps> = ({ id, game, className }) => {
-
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+  game.Logger.debug(`connecting to canvas`)
+  game.Viewport.canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
-    game.onComponentMounted();
-    linkCanvasRefs(game);
+    game.Logger.info('Game component mounted!')
+    game.start();
     return () => {
-      if (game.onComponentUnmount) game.onComponentUnmount();
+      game.Logger.info('Game component unmounted!')
+      game.terminate();
     }
   }, []);
-
-  /** Retrieves the reference to the 2d context of the canvas */
-  function linkCanvasRefs(game: Game) {
-    if (!canvasRef) {
-      throw new Error('Reference to canvas is lost!')
-    }
-    game.Logger.debug(`connecting to canvas`)
-    game.Viewport.CanvasRef = canvasRef
-  }
 
   function generateCanvsMouseEvent(e: React.MouseEvent): GameMouseEvent {
     let button = GameMouseButtons.unknown;
@@ -52,6 +44,7 @@ export const GameComponent: FC<GameComponentProps> = ({ id, game, className }) =
 
   function handleCanvasClicked(e: React.MouseEvent) {
     e.preventDefault();
+    game.Logger.debug(`Mouse button ${e.button} clicked at x${e.clientX}:y${e.clientY}`);
     if (game.onMouseClick) {
       game.onMouseClick(generateCanvsMouseEvent(e));
     }
@@ -68,11 +61,13 @@ export const GameComponent: FC<GameComponentProps> = ({ id, game, className }) =
   }
 
   function handleCanvasFocusLost() {
+    game.Logger.debug('Canvas lost focus');
     game.State.isPlaying = false;
   }
 
   function handleCanvasMouseDown(e: React.MouseEvent) {
     e.preventDefault();
+    game.Logger.debug(`Mouse button ${e.button} held down at x${e.clientX}:y${e.clientY}`);
     if (game.onMouseDown) {
       game.onMouseDown(generateCanvsMouseEvent(e));
     }
@@ -80,6 +75,7 @@ export const GameComponent: FC<GameComponentProps> = ({ id, game, className }) =
 
   function handleCanvasMouseUp(e: React.MouseEvent) {
     e.preventDefault();
+    game.Logger.debug(`Mouse button ${e.button} released at x${e.clientX}:y${e.clientY}`);
     if (game.onMouseUp) {
       game.onMouseUp(generateCanvsMouseEvent(e));
     }
@@ -88,8 +84,9 @@ export const GameComponent: FC<GameComponentProps> = ({ id, game, className }) =
   return <>
     <canvas
       className={className}
-      id={id}
-      ref={canvasRef}
+      id={`${id}:${game.instanceID}`}
+      key={`${id}:${game.instanceID}`}
+      ref={game.Viewport.canvasRef}
       height={game.Viewport.Config.height}
       width={game.Viewport.Config.width}
       onBlur={handleCanvasFocusLost}

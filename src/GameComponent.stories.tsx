@@ -1,16 +1,15 @@
-import React from 'react'
-import { Meta, StoryObj } from "@storybook/react";
 import { GameComponent } from './GameComponent'
-import { Game, GameMouseEvent } from './Game';
+import { Game, GameMouseEvent, SystemPerformance } from './Game';
 import { GameElement } from './GameElement';
 import { GameLogLevels } from './GameLog';
+import React from 'react';
 
 class Avatar extends GameElement {
   xDirRight: boolean
   yDirDown: boolean
 
   constructor(game: Game) {
-    super(game, {
+    super(game.Logger, {
       name: 'my-avatar',
       sprite: 'avatar',
       pos: {
@@ -25,42 +24,55 @@ class Avatar extends GameElement {
     this.yDirDown = true;
   }
 
-  onUpdate(timeDelta: number) {
+  onUpdate(game: Game, timeDelta: number) {
+    const yDelta = (this.State.speed * timeDelta);
+    const xDelta = (this.State.speed * timeDelta);
     if (this.yDirDown) {
-      this.Config.pos!.y! += (this.State.speed * timeDelta);
-      if (this.Config.pos!.y! + 50 > this.Game.Viewport.Config.height!) this.yDirDown = false;
+      this.Config.pos!.y! += yDelta;
+      if (this.Config.pos!.y! + 50 >= game.Viewport.Config.height!) {
+        this.Config.pos!.y! = 2 * (game.Viewport.Config.height! - 50) - this.Config.pos!.y!;
+        this.yDirDown = false;
+      }
     } else {
-      this.Config.pos!.y -= (this.State.speed * timeDelta);
-      if (this.Config.pos!.y < 0) this.yDirDown = true;
+      this.Config.pos!.y -= yDelta;
+      if (this.Config.pos!.y <= 0) {
+        this.Config.pos!.y! = this.Config.pos!.y! * -1;
+        this.yDirDown = true;
+      }
     }
     if (this.xDirRight) {
-      this.Config.pos!.x += (this.State.speed * timeDelta);
-      if (this.Config.pos!.x + 50 > this.Game.Viewport.Config.width!) this.xDirRight = false;
+      this.Config.pos!.x += xDelta;
+      if (this.Config.pos!.x + 50 >= game.Viewport.Config.width!) {
+        this.Config.pos!.x! = 2 * (game.Viewport.Config.width! - 50) - this.Config.pos!.x!;
+        this.xDirRight = false;
+      }
     } else {
-      this.Config.pos!.x -= (this.State.speed * timeDelta);
-      if (this.Config.pos!.x < 0) this.xDirRight = true;
+      this.Config.pos!.x -= xDelta;
+      if (this.Config.pos!.x <= 0) {
+        this.Config.pos!.x! = this.Config.pos!.x! * -1;
+        this.xDirRight = true;
+      }
     }
   }
 
-  onDraw(timeDelta: number) {
-    this.Game.Viewport.clear()
-    this.Game.Viewport.drawElement(this);
+  onDraw(game: Game, timeDelta: number) {
+    game.Viewport.clear()
+    game.Viewport.drawElement(this);
   }
 
   playSound() {
   }
 }
 
-let avatar: Avatar;
 class DemoGame extends Game {
-  constructor() {
+  constructor(fps: number) {
     super({
       name: 'hellogame',
       logLevel: GameLogLevels.debug,
       viewport: {
         //showCollisions: true,
         showPerfStats: true,
-        fps: 12,
+        fps: fps,
         width: 360,
         height: 270,
         bgColor: 'red',
@@ -81,12 +93,12 @@ class DemoGame extends Game {
 
   }
 
-  onDraw(timeDelta: number, sysPerf: any) {
+  onDraw(timeDelta: number, sysPerf: SystemPerformance) {
     this.Elements.redraw(this, timeDelta)
     if (this.Viewport.Config.showPerfStats) {
       const font = this.Fonts.get('default')
       this.Viewport.drawText("Game Reactor by: Adonis Lee Villamor", { x: 10, y: 240 }, font);
-      this.Viewport.drawText(`Frame: ${sysPerf}/${this.Viewport.Config.fps}`, { x: 260, y: 240 }, font);
+      this.Viewport.drawText(`Frame: ${sysPerf.frameCurrent}/${this.Viewport.Config.fps}`, { x: 260, y: 240 }, font);
     }
   }
 
@@ -96,30 +108,52 @@ class DemoGame extends Game {
 
   onMouseDown(e: GameMouseEvent) {
     this.Sounds.play('blast');
+    this.pause()
   }
 }
 
-const dg = new DemoGame();
+const dg12 = new DemoGame(12);
+const dg24 = new DemoGame(24);
+const dg30 = new DemoGame(30);
+const dg60 = new DemoGame(60);
 
 
-/** STORYBOOK */
-
-const meta: Meta<typeof GameComponent> = {
-  component: GameComponent,
-  title: "GameReactor component",
-  argTypes: {}
+function DemoGameComponent({ id, game }) {
+  return <div style={{ width: '300px' }}>
+    <GameComponent id={id} game={game} />
+  </div>
 }
 
-export default meta
+export default {
+  component: DemoGameComponent,
+  title: 'GameComponent',
+  tags: ['autodocs'],
+};
 
-type Story = StoryObj<typeof GameComponent>;
+export const At12FPS = {
+  args: {
+    id: "12 FPS Game",
+    game: dg12
+  },
+};
 
-export const Primary: Story = (args) => (
-  <div style={{ width: '400px', height: '300px' }}>
-    <GameComponent className='border-solid' data-testId="InputField-id" {...args} />
-  </div>
-);
-Primary.args = {
-  id: "primarytest",
-  game: dg
+export const Default = {
+  args: {
+    id: "24 FPS Game",
+    game: dg24
+  },
+};
+
+export const At30FPS = {
+  args: {
+    id: "30 FPS Game",
+    game: dg30
+  },
+};
+
+export const At60FPS = {
+  args: {
+    id: "60 FPS Game",
+    game: dg60
+  },
 };

@@ -1,8 +1,6 @@
 import React, { RefObject, createRef } from 'react';
 import { GameLog } from './GameLog';
 
-let self: SpriteManager;
-
 export interface SpriteSource {
   path: string,
   ref: RefObject<HTMLImageElement>,
@@ -48,11 +46,10 @@ export class SpriteManager {
     this.sources = {};
     this.sprites = {};
     this._logger = logger;
-    self = this;
   }
 
   addSource(id: string, path: string) {
-    self.sources[id] = {
+    this.sources[id] = {
       path,
       ref: createRef()
     };
@@ -60,7 +57,7 @@ export class SpriteManager {
   }
 
   getSource(id: string) {
-    return self.sources[id].ref?.current;
+    return this.sources[id].ref?.current;
   }
 
   /**

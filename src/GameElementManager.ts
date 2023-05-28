@@ -29,16 +29,15 @@ export class GameElementManager {
   update(game: Game, timeDelta: number) {
     for (let i = 0; i < this._elementIndex.length; i += 1) {
       if (this._elementIndex[i].onUpdate && typeof this._elementIndex[i].onUpdate === 'function') {
-        this._elementIndex[i].onUpdate(timeDelta);
+        this._elementIndex[i].onUpdate(game, timeDelta);
       }
     }
   }
 
   redraw(game: Game, timeDelta: number) {
-    //this.game.viewport.clear();
     for (let i = 0; i < this._elementIndex.length; i += 1) {
       if (this._elementIndex[i].onDraw && typeof this._elementIndex[i].onDraw === 'function') {
-        this._elementIndex[i].onDraw(timeDelta);
+        this._elementIndex[i].onDraw(game, timeDelta);
       }
     }
   }

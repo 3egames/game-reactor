@@ -1,5 +1,6 @@
 import { CollisionSets } from './CollisionSets';
 import { Game } from './Game';
+import { GameLog } from './GameLog';
 
 export interface GameElementConfig {
   name: string,
@@ -25,28 +26,21 @@ export function generateConfig(): GameElementConfig {
  * This is an abstract class that must be inherited by any GameElement type
  */
 export abstract class GameElement {
-  private _game: Game;
+  private _logger: GameLog;
   private _config: GameElementConfig;
   private state: { [key: string]: any }
 
-  constructor(game: Game, config: GameElementConfig = DEFAULT_CONFIG, state: { [key: string]: any } = {}) {
-    this._game = game;
+  constructor(logger: GameLog, config: GameElementConfig = DEFAULT_CONFIG, state: { [key: string]: any } = {}) {
+    this._logger = logger;
     this._config = { ...DEFAULT_CONFIG, ...config };
     this._config.collisions = new CollisionSets();
     this.state = state;
-    game.Logger.debug(`GameElement '${this.Config.name}' initialized.`)
-  }
-
-  get ImageSource(): HTMLImageElement | null {
-    if (!this._config.sprite) return null;
-    return this._game.Sprites.getSource(this._config.sprite);
+    this._logger.debug(`GameElement '${this.Config.name}' initialized.`)
   }
 
   get Config() { return this._config; }
 
   get State() { return this.state }
-
-  get Game() { return this._game }
 
   // get Collisions() {
   //   if (!this.HasCollisions) {
@@ -64,7 +58,7 @@ export abstract class GameElement {
   //   return this.game.Sprites.getSource(this.config.sprite);
   // }
 
-  abstract onUpdate(timeDelta: number): void;
+  abstract onUpdate(game: Game, timeDelta: number): void;
 
-  abstract onDraw(timeDelta: number): void;
+  abstract onDraw(game: Game, timeDelta: number): void;
 }

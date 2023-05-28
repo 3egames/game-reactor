@@ -20,29 +20,29 @@ const DEFAULT_CONFIG = {
   weight: 'normal',
 };
 
-let fonts: { [key: string]: GameFontConfig };
 
 export class GameFontManager {
   private _logger: GameLog;
+  private _fonts: { [key: string]: GameFontConfig };
 
   constructor(logger: GameLog) {
     this._logger = logger;
-    fonts = {}; // make sure to clear always
+    this._fonts = {}; // make sure to clear always
     this.add('default');
   }
 
   add(id: string, config: GameFontConfig = {}) {
-    if (fonts[id]) {
+    if (this._fonts[id]) {
       throw new Error(`Font '${id}' already set`);
     }
-    fonts[id] = { ...DEFAULT_CONFIG, ...config };
+    this._fonts[id] = { ...DEFAULT_CONFIG, ...config };
     this._logger.debug(`Added font '${id}'`)
   }
 
   get(id: string) {
-    if (!fonts[id]) {
+    if (!this._fonts[id]) {
       throw new Error(`Font '${id}' not set`);
     }
-    return fonts[id];
+    return this._fonts[id];
   }
 }

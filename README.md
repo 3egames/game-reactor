@@ -139,11 +139,11 @@ class MyGameElement extends GameElement {
     });
   }
 
-  onUpdate(timeDelta: number) {
+  onUpdate(game: Game, timeDelta: number) {
     //do nothing for now...
   }
 
-  onDraw(timeDelta: number) {
+  onDraw(game: Game, timeDelta: number) {
     this.Game.Viewport.drawElement(this);
   }
 }
@@ -158,8 +158,10 @@ Your GameElements must extend the GameElement class and define itself in the bas
 
 The GameElement also has 2 abstract methods you must implement.
 * onUpdate - If the GameElement is registered, this is called each time `Game.Elements.update()` is triggered (mostly in the Game's onUpdate method).
+  * game - The game instance
   * timeDelta - timeDelta is a multiplier based on the time difference between the current and previous frame. This is affected by the number of frames per second
 * onDraw - - If the GameElement is registered, this is called each time `Game.Elements.redraw()` is triggered (mostly in the Game's onDraw method).
+  * game - The game instance
   * timeDelta - timeDelta is a multiplier based on the time difference between the current and previous frame. This is affected by the number of frames per second
 
 ---
@@ -199,14 +201,14 @@ class DemoGame extends Game {
 export default function MyGamePage() {
   const dg = new DemoGame();
   return (
-    <div>
+    <div style={{ width: '800px ' }}>
       <h1>My game using Game-Reactor</h1>
       <GameComponent id="demoGame" game={dg} />
     </div>
   )
 }
 ``` 
-This will run and provide you with the very first basic game. The blue screen of death! It does nothing but behind the scenes, redraws are being fired. try adding `console.log('ondraw')` inside the onDraw() method for example and check your browser's console. Try that for onUpdate as well.
+This will run and provide you with the very first basic game. The blue screen of death! It does nothing but behind the scenes, redraws are being fired. try adding `console.log('ondraw')` inside the onDraw() method for example and check your browser's console. Try that for onUpdate as well. Note that we need to wrap the GameComponent inside a DIV of specific size because it will stretch to its parent's dimension meaning if it is just placed on the body, it will consume the entire space (unless that was intended).
 
 Lets add our first GameElement
 ``` typescript
@@ -259,19 +261,33 @@ Once you run it, you would seee the icon being rendered in position x20-y20 as e
 inside the GameElement's onUpdate method, add the following
 ``` typescript
   onUpdate(timeDelta: number) {
+    const yDelta = this.State.speed;
+    const xDelta = this.State.speed;
     if (this.yDirDown) {
-      this.Config.pos!.y += this.State.speed;
-      if (this.Config.pos!.y + 50 > this.Game.Viewport.Config.height!) this.yDirDown = false;
+      this.Config.pos!.y! += yDelta;
+      if (this.Config.pos!.y! + 50 >= game.Viewport.Config.height!) {
+        this.Config.pos!.y! = 2 * (game.Viewport.Config.height! - 50) - this.Config.pos!.y!;
+        this.yDirDown = false;
+      }
     } else {
-      this.Config.pos!.y -= this.State.speed;
-      if (this.Config.pos!.y < 0) this.yDirDown = true;
+      this.Config.pos!.y -= yDelta;
+      if (this.Config.pos!.y <= 0) {
+        this.Config.pos!.y! = this.Config.pos!.y! * -1;
+        this.yDirDown = true;
+      }
     }
     if (this.xDirRight) {
-      this.Config.pos!.x += this.State.speed;
-      if (this.Config.pos!.x + 50 > this.Game.Viewport.Config.width!) this.xDirRight = false;
+      this.Config.pos!.x += xDelta;
+      if (this.Config.pos!.x + 50 >= game.Viewport.Config.width!) {
+        this.Config.pos!.x! = 2 * (game.Viewport.Config.width! - 50) - this.Config.pos!.x!;
+        this.xDirRight = false;
+      }
     } else {
-      this.Config.pos!.x -= this.State.speed;
-      if (this.Config.pos!.x < 0) this.xDirRight = true;
+      this.Config.pos!.x -= xDelta;
+      if (this.Config.pos!.x <= 0) {
+        this.Config.pos!.x! = this.Config.pos!.x! * -1;
+        this.xDirRight = true;
+      }
     }
   }
 
@@ -296,20 +312,34 @@ Now what if we cut our fps to lets say... 6 fps? change the Game's constructor t
 run it again and you will see that it updates more slowly at 6 updates per second. So why is it running as slow? that is because it is now updating at 60 pixel movement per second (10 movement every 6 frames). If our goal is that it consistently moves at 240 pixels per second no matter the framerate, how do we do that? That's where the timeDelta comes into play. Revise the code to the following
 
 ``` typescript
-  onUpdate(timeDelta: number) {
+  onUpdate(game: Game, timeDelta: number) {
+    const yDelta = (this.State.speed * timeDelta);
+    const xDelta = (this.State.speed * timeDelta);
     if (this.yDirDown) {
-      this.Config.pos!.y += (this.State.speed * timeDelta);
-      if (this.Config.pos!.y + 50 > this.Game.Viewport.Config.height!) this.yDirDown = false;
+      this.Config.pos!.y! += yDelta;
+      if (this.Config.pos!.y! + 50 >= game.Viewport.Config.height!) {
+        this.Config.pos!.y! = 2 * (game.Viewport.Config.height! - 50) - this.Config.pos!.y!;
+        this.yDirDown = false;
+      }
     } else {
-      this.Config.pos!.y -= (this.State.speed * timeDelta);
-      if (this.Config.pos!.y < 0) this.yDirDown = true;
+      this.Config.pos!.y -= yDelta;
+      if (this.Config.pos!.y <= 0) {
+        this.Config.pos!.y! = this.Config.pos!.y! * -1;
+        this.yDirDown = true;
+      }
     }
     if (this.xDirRight) {
-      this.Config.pos!.x += (this.State.speed * timeDelta);
-      if (this.Config.pos!.x + 50 > this.Game.Viewport.Config.width!) this.xDirRight = false;
+      this.Config.pos!.x += xDelta;
+      if (this.Config.pos!.x + 50 >= game.Viewport.Config.width!) {
+        this.Config.pos!.x! = 2 * (game.Viewport.Config.width! - 50) - this.Config.pos!.x!;
+        this.xDirRight = false;
+      }
     } else {
-      this.Config.pos!.x -= (this.State.speed * timeDelta);
-      if (this.Config.pos!.x < 0) this.xDirRight = true;
+      this.Config.pos!.x -= xDelta;
+      if (this.Config.pos!.x <= 0) {
+        this.Config.pos!.x! = this.Config.pos!.x! * -1;
+        this.xDirRight = true;
+      }
     }
   }
 

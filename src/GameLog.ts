@@ -1,5 +1,3 @@
-import { Game } from "./Game";
-
 export enum GameLogLevels {
   warn, info, debug
 }
